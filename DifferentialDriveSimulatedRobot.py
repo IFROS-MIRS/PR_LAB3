@@ -146,6 +146,29 @@ class DifferentialDriveSimulatedRobot(SimulatedRobot):
 
         pass
 
+    def ReadRanges(self):
+        """ Simulates reading the distances to the features in the environment.
+
+        return: a list of ranges measurements and the covariance of the noise of the readings 
+        """
+
+        ''' Note: You can simulate that the reading includes the id of the feature and the distance to it
+                  this will help you to match the readings with the map features and avoid data association problems
+        
+           Note: define a new class variable to keep the desired measurement covariance (set some meaningful value for it)
+        '''
+
+        if self.k % self.xy_feature_reading_frequency != 0:
+            # Provide readings at the predefined frequency
+            return [], []
+
+        # TODO: to be completed by the student
+        #
+        #
+        #
+        #
+   
+
     def PlotRobot(self):
         """ Updates the plot of the robot at the current pose """
 

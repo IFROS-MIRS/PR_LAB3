@@ -1,8 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Localization import Localization
+import math
+import random
 
-class ParticleFilter(Localization):
+def pdf(mean, sigma, x):
+    """Compute the PDF for a normal distribution."""
+    return 1 / (sigma * math.sqrt(2 * math.pi)) * math.exp(- (x-mean)**2 / (2 * sigma**2))
+
+
+class ParticleFilter:
     """
     Particle Filter Localization.
 
@@ -15,7 +21,7 @@ class ParticleFilter(Localization):
     has some probability of being correct.
 
     """
-    def __init__(self, index, kSteps, robot, particles, *args):
+    def __init__(self, particles, *args):
         """
         Constructor of the Particle Filter class.
 
@@ -27,36 +33,95 @@ class ParticleFilter(Localization):
         """
         self.particles = particles
         self.particle_weights = np.ones(len(particles)) / len(particles) # evenly distributed weights
-        self.n_eff = 0
+        self.resampling_function = self.StochasticUniversalResampling # choose resampling method
+        self.resampling_threshold = 10 # choose a resampling threshold
+
+
+    def SampleProcessModel(self, p, u, Q):
+        """
+        Process model of a single particle given an input
         
-        super().__init__(index, kSteps, robot, self.get_mean_particle(), *args)
+        :param p: a single particle at time k
+        :param u: input variable at time k
+        :param Q: Covariance matrix associated to the input at time k
 
-        self.init_plotting()
-
-    def MotionModel(self, particle, u, noise):
-        """"
-        Motion model of the Particle Filter to be overwritten by the child class.
-
-        :param particle: particle state vector
-        :param uk: input vector
-        :param noise: sample from a noise distribution to be added to the input
-        :return particle: updated particle state vector
+        :return the particle state at time k+1, after apllying the model
         """
-        return particle
+        
+        print("SampleProcessModel must be implemented in a child class")
+        pass
     
-    def Weight(self, z, R) -> None:
+    def ObservationModel(self, p, z, R):
         """
-        Weight each particle by the liklihood of the particle being correct.
-        The probability the particle is correct is given by the probability that it is correct given the measurements (z). 
+        Compute the measurement probability of a single particle with respect to a single measurement.
 
+        :param p: a single particle
+        :param z: a single measurement
+        :param R: the covariance matrix associated to z
+
+        :return: the measurement probability (or weight) of the particle p measuring z
+        """
+        print("ObservationModel must be implemented in a child class")
+        pass
+
+
+    def Prediction(self, u, Q):
+        """
+        Predict the next state of the system based on a given motion model.
+
+        This function updates the state of each particle by predicting its next state using a motion model.
+
+        :param u: input vector
+        :param Q: the covariance matrix associated with the input vector
+        :return: None
+
+        **To be completed by the student**
+        """
+
+        # For each particle
+        # --- Apply the process model to the particle
+
+
+
+    def Update(self, z, R):    
+        """
+        Update the particle weights based on sensor measurements and perform resampling.
+
+        This function adjusts the weights of particles based on how well they match the sensor measurements.
+       
+        The updated weights reflect the likelihood of each particle being the true state of the system given
+        the sensor measurements.
+
+        The resulting weights must be normalized
+
+        After updating the weights, the function may perform resampling to ensure that particles with higher
+        weights are more likely to be selected, maintaining diversity and preventing particle degeneracy.
         
         :param z: measurement vector
-        :param R: measurement noise covariance
+        :param R: the covariance matrix associated with the measurement vector
+
         :return: None
+
+        **To be completed by the student**
         """
-        print("Weight function not implemented")
-        pass
- 
+
+        # Update Weights of each particle based on the measurements
+        #
+        #
+        #
+        #
+        #
+
+        # Normalize weights
+        #
+        #
+
+        # Resample if necessary
+        # n_eff = ...
+        #
+        #
+
+
     def Resample(self) -> None:
         """
         Resample the particles based on their weights to ensure diversity and prevent particle degeneracy.
@@ -71,42 +136,41 @@ class ParticleFilter(Localization):
         After resampling, the attributes 'particles' and 'weights' of the ParticleFilter instance are updated
         to reflect the new set of particles and their corresponding weights.
 
-        :return: None
-        """
-        print("Resample function not implemented")
-        pass
-    
-    def Prediction(self, u, Q):
-        """
-        Predict the next state of the system based on a given motion model.
-
-        This function updates the state of each particle by predicting its next state using a motion model.
-
-        :param u: input vector
-        :param Q: the covariance matrix associated with the input vector
-        :return: None
-        """
-        print("Prediction function not implemented")
-        pass
-
-    def Update(self, z, R):    
-        """
-        Update the particle weights based on sensor measurements and perform resampling.
-
-        This function adjusts the weights of particles based on how well they match the sensor measurements.
+        This method calls the resampling function set as default, mainly either RouletteWheelResampling or StochasticUniversalResampling
        
-        The updated weights reflect the likelihood of each particle being the true state of the system given
-        the sensor measurements.
-
-        After updating the weights, the function may perform resampling to ensure that particles with higher
-        weights are more likely to be selected, maintaining diversity and preventing particle degeneracy.
-        
-        :param z: measurement vector
-        :param R: the covariance matrix associated with the measurement vector
-
+        :return: None
         """
-        print("Update function not implemented")
-        pass
+        return self.resampling_function()
+    
+    # Resampling methods
+
+    def RouletteWheelResampling(self):
+        ''' This method is the Roulette Wheel version of resampling'''
+
+        '''**To be completed by the student**'''
+
+        #
+        #
+        #...
+        #
+        #
+        # self.particles = new_particles
+        # self.particle_weights = ...
+
+    def StochasticUniversalResampling(self):
+        ''' This method is the Stochastic Universal version of resampling'''
+
+        '''**To be completed by the student**'''
+
+        #
+        #
+        #...
+        #
+        #
+        # self.particles = new_particles
+        # self.particle_weights = ...
+
+    # Helper functions for plotting and logging
 
     def get_mean_particle(self):
         """
@@ -124,68 +188,3 @@ class ParticleFilter(Localization):
         # Maximum weight
         return self.particles[np.argmax(self.particle_weights)]
 
-    '''
-    Plotting
-    '''
-    def init_plotting(self):
-        """
-        Init the plotting of the particles and the mean particle.
-        """
-        self.x_idx = 0
-        self.y_idx = 1
-        self.yaw_idx = 2
-
-        for x in self.index:
-            if x.state == 'x': self.x_idx = x.simulation
-            if x.state == 'y': self.y_idx = x.simulation
-            if x.state == 'yaw': self.yaw_idx = x.simulation
-
-        self.plt_particles = []
-        self.plt_particles_ori = []
-        for i in range(len(self.particles)):
-            plt_particle, = plt.plot(self.particles[i][self.x_idx], self.particles[i][1], 'g.', markersize=2)
-            # make plot on top
-            plt_particle.set_zorder(10)
-            self.plt_particles.append(plt_particle)
-
-        for i in range(len(self.particles)):
-            plt_particle, = plt.plot([self.particles[i][self.x_idx], self.particles[i][self.x_idx] + 0.5 * np.cos(self.particles[i][self.yaw_idx])],
-                                     [self.particles[i][self.y_idx], self.particles[i][self.y_idx] + 0.5 * np.sin(self.particles[i][self.yaw_idx])], 'g',
-                                     markersize=1)
-            # make plot on top
-            plt_particle.set_zorder(10)
-            self.plt_particles_ori.append(plt_particle)
-        
-        # append the mean particle
-        plt_mean_particle, = plt.plot(0, 0, 'b.', markersize=8)
-        # make plot on top
-        plt_mean_particle.set_zorder(10)
-        self.plt_particles.append(plt_mean_particle)
-        plt_mean_particle_ori, = plt.plot([0, 1 * np.cos(0)], [0, 1 * np.sin(0)], 'b', markersize=4)
-        plt_mean_particle_ori.set_zorder(10)
-        self.plt_particles_ori.append(plt_mean_particle_ori)
-
-    
-    def PlotParticles(self):
-        """
-        Plots all the particles and the mean particle.
-        Particles are plotted as green dots, and the mean particle is plotted as a blue dot.
-        Particle orientation is plotted as a green line, and the mean particle orientation is plotted as a blue line.
-        Particle size is proportional to the particle weight.
-        Note that the size is scaled for visualization purposes, and does not reflect the actual weight.
-        """
-        # update particles
-        K_size = 200 # increase the size of the particles for visualization
-        K_len = 40 # increase the length of the particle vector (orientation) for visualization
-        for i in range(len(self.particles)):
-            self.plt_particles[i].set_data(self.particles[i][self.x_idx], self.particles[i][self.y_idx])
-            self.plt_particles[i].set_markersize(self.particle_weights[i] * K_size)
-            self.plt_particles_ori[i].set_data([self.particles[i][self.x_idx], self.particles[i][self.x_idx] + K_len * self.particle_weights[i] * np.cos(self.particles[i][self.yaw_idx])],
-                                     [self.particles[i][self.y_idx], self.particles[i][self.y_idx] + K_len * self.particle_weights[i] * np.sin(self.particles[i][self.yaw_idx])])
-
-        # update mean particle
-        mean_particle = self.get_mean_particle()
-        self.plt_particles[-1].set_data(mean_particle[self.x_idx], mean_particle[self.y_idx])
-        self.plt_particles_ori[-1].set_data([mean_particle[self.x_idx], mean_particle[self.x_idx] + 1 * np.cos(mean_particle[self.yaw_idx])],
-                                        [mean_particle[self.y_idx], mean_particle[self.y_idx] + 1 * np.sin(mean_particle[self.yaw_idx])])
-      
